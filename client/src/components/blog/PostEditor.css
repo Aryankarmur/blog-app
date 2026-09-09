@@ -114,7 +114,8 @@
 }
 
 .editor-content {
-  line-height: 1.7;
+  line-height: 1.8;
+  font-size: 1.05rem;
 }
 
 .is-invalid {
@@ -133,6 +134,23 @@
 }
 
 .char-count {
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+  margin-left: auto;
+  transition: color 0.2s ease;
+}
+
+.char-count.warning {
+  color: var(--color-warning, #f59e0b);
+  font-weight: var(--font-weight-bold);
+}
+
+.char-count.error {
+  color: var(--color-error);
+  font-weight: var(--font-weight-bold);
+}
+
+.word-count {
   color: var(--color-text-muted);
   font-size: var(--font-sm);
   margin-left: auto;

@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Sun, Moon, Menu, X, Edit3, User } from 'lucide-react';
+import { Search, Sun, Moon, Menu, X, Edit3, User, LogOut, Bookmark } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,6 +20,12 @@ const Navbar = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     navigate('/explore');
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setIsMenuOpen(false);
   };
 
   return (
@@ -50,6 +56,9 @@ const Navbar = () => {
                 <Link to="/posts/create" className="nav-link write-link">
                   <Edit3 size={18} /> Write Article
                 </Link>
+                <Link to="/saved" className="nav-link write-link" aria-label="Saved Articles" title="Saved Articles">
+                  <Bookmark size={18} /> Saved
+                </Link>
                 <Link to="/profile" className="profile-btn" aria-label="User Profile">
                   {user?.profileImage ? (
                     <img src={user.profileImage} alt="Profile" className="profile-img" />
@@ -57,6 +66,9 @@ const Navbar = () => {
                     <div className="profile-initial">{user?.name ? user.name[0].toUpperCase() : <User size={18}/>}</div>
                   )}
                 </Link>
+                <button type="button" onClick={handleLogout} className="nav-link logout-button">
+                  Logout
+                </button>
               </>
             ) : (
               <>
@@ -66,7 +78,12 @@ const Navbar = () => {
             )}
           </div>
 
-          <button className="mobile-menu-btn" onClick={() => setIsMenuOpen(true)} aria-label="Open menu">
+          <button 
+            className="mobile-menu-btn" 
+            onClick={() => setIsMenuOpen(true)} 
+            aria-label="Open menu"
+            aria-expanded={isMenuOpen}
+          >
             <Menu size={24} />
           </button>
         </div>
@@ -98,9 +115,15 @@ const Navbar = () => {
                   <NavLink to="/posts/create">
                     <Edit3 size={18} /> Write Article
                   </NavLink>
+                  <NavLink to="/saved">
+                    <Bookmark size={18} /> Saved Articles
+                  </NavLink>
                   <NavLink to="/profile">
                     <User size={18} /> Profile
                   </NavLink>
+                  <button type="button" onClick={handleLogout}>
+                    <LogOut size={18} /> Logout
+                  </button>
                 </>
               ) : (
                 <>

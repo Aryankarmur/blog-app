@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import PostEditor from '../../components/blog/PostEditor';
 import { getPostById, updatePost } from '../../services/postService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { useToast } from '../../context/ToastContext';
 
 const EditPost = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   
   const [initialData, setInitialData] = useState(null);
   const [isFetching, setIsFetching] = useState(true);
@@ -40,6 +42,7 @@ const EditPost = () => {
       const res = await updatePost(id, postData);
       
       const updatedPostId = res.data._id;
+      showToast('Article updated successfully.', 'success');
       navigate(`/posts/${updatedPostId}`);
     } catch (err) {
       if (err.response?.status === 401) {
@@ -49,6 +52,7 @@ const EditPost = () => {
       } else {
         setError(err.response?.data?.message || 'Unable to save changes. Please try again.');
       }
+      showToast('Unable to save changes. Please try again.', 'error');
       setLoading(false);
     }
   };
@@ -62,6 +66,25 @@ const EditPost = () => {
   }
 
   if (error && !initialData) {
+    if (error === 'Article not found.') {
+      return (
+        <div className="post-not-found container" style={{ textAlign: 'center', marginTop: 'var(--space-3xl)' }}>
+          <h1 style={{ fontSize: 'var(--font-2xl)', color: 'var(--color-text)', marginBottom: 'var(--space-md)' }}>Article Not Found</h1>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-xl)', fontSize: 'var(--font-lg)' }}>
+            The article you're looking for could not be found.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-md)', flexWrap: 'wrap' }}>
+            <Link to="/" className="btn-primary">
+              Go Home
+            </Link>
+            <Link to="/explore" className="btn-outline">
+              Explore Articles
+            </Link>
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <div className="container" style={{ textAlign: 'center', marginTop: 'var(--space-3xl)' }}>
         <h2 style={{ marginBottom: 'var(--space-lg)' }}>{error}</h2>

@@ -4,6 +4,11 @@ import Post from '../models/Post.js';
 // Validate ObjectId helper
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
+// Escape regex characters helper
+const escapeRegex = (text) => {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+};
+
 // @desc    Create a post
 // @route   POST /api/posts
 // @access  Public (for now)
@@ -59,10 +64,12 @@ export const getPosts = async (req, res) => {
     const query = {};
 
     if (search) {
+      const escapedSearch = escapeRegex(search);
       query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { content: { $regex: search, $options: 'i' } },
-        { excerpt: { $regex: search, $options: 'i' } },
+        { title: { $regex: escapedSearch, $options: 'i' } },
+        { content: { $regex: escapedSearch, $options: 'i' } },
+        { excerpt: { $regex: escapedSearch, $options: 'i' } },
+        { tags: { $regex: escapedSearch, $options: 'i' } },
       ];
     }
 
@@ -104,6 +111,25 @@ export const getPosts = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in getPosts:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Get unique tags from published posts
+// @route   GET /api/posts/tags
+// @access  Public
+export const getTags = async (req, res) => {
+  try {
+    const tags = await Post.distinct('tags', { status: 'published' });
+    // Filter out empty strings/nulls and sort alphabetically
+    const cleanTags = tags.filter(tag => tag && tag.trim() !== '').sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+    
+    res.status(200).json({
+      success: true,
+      data: { tags: cleanTags },
+    });
+  } catch (error) {
+    console.error('Error in getTags:', error.message);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };

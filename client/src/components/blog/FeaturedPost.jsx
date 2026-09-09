@@ -31,16 +31,29 @@ const FeaturedPost = ({ post }) => {
         </Link>
         <p className="featured-excerpt">{excerpt}</p>
         
-        <div className="featured-author">
-          {author?.profileImage ? (
-            <img src={author.profileImage} alt={author.name} className="featured-avatar" />
-          ) : (
-            <div className="featured-avatar-fallback">
-              {author?.name ? author.name[0].toUpperCase() : <User size={18} />}
-            </div>
-          )}
-          <span className="featured-author-name">{author?.name || 'Unknown'}</span>
-        </div>
+        {author?._id ? (
+          <Link to={`/users/${author._id}`} className="featured-author">
+            {author?.profileImage ? (
+              <img src={author.profileImage} alt={author.name} className="featured-avatar" />
+            ) : (
+              <div className="featured-avatar-fallback">
+                {author?.name ? author.name[0].toUpperCase() : <User size={18} />}
+              </div>
+            )}
+            <span className="featured-author-name">{author?.name || 'Unknown'}</span>
+          </Link>
+        ) : (
+          <div className="featured-author">
+            {author?.profileImage ? (
+              <img src={author.profileImage} alt={author.name} className="featured-avatar" />
+            ) : (
+              <div className="featured-avatar-fallback">
+                {author?.name ? author.name[0].toUpperCase() : <User size={18} />}
+              </div>
+            )}
+            <span className="featured-author-name">{author?.name || 'Unknown'}</span>
+          </div>
+        )}
       </div>
     </article>
   );

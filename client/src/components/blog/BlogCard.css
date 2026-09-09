@@ -133,3 +133,17 @@
   font-size: var(--font-xs);
   color: var(--color-text-muted);
 }
+
+a.blog-card-author {
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+a.blog-card-author:hover {
+  opacity: 0.8;
+}
+
+a.blog-card-author:hover .author-name {
+  text-decoration: underline;
+  color: var(--color-accent);
+}

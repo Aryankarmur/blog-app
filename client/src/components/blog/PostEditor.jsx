@@ -17,6 +17,7 @@ const PostEditor = ({ initialData, onSubmit, loading, error, isEditMode }) => {
   
   const [tagInput, setTagInput] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -34,15 +35,31 @@ const PostEditor = ({ initialData, onSubmit, loading, error, isEditMode }) => {
   // Handle unsaved changes warning
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      // Very basic check: if user started typing or edited something
-      if (formData.title || formData.content) {
+      if (isSubmitting) return;
+
+      const isDirty = initialData
+        ? JSON.stringify(formData) !== JSON.stringify(initialData)
+        : formData.title || formData.content || formData.excerpt || formData.category || formData.tags.length > 0;
+
+      if (isDirty) {
         e.preventDefault();
         e.returnValue = '';
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [formData]);
+  }, [formData, initialData, isSubmitting]);
+
+  const getContentWordCount = () => {
+    if (!formData.content) return 0;
+    return formData.content.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
+  const getCharCountClass = (current, max) => {
+    if (current >= max) return 'char-count error';
+    if (current >= max * 0.8) return 'char-count warning';
+    return 'char-count';
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -90,6 +107,7 @@ const PostEditor = ({ initialData, onSubmit, loading, error, isEditMode }) => {
   const handleSubmit = (targetStatus) => {
     if (!validateForm()) return;
     
+    setIsSubmitting(true);
     // Pass the payload up
     onSubmit({
       ...formData,
@@ -143,8 +161,14 @@ const PostEditor = ({ initialData, onSubmit, loading, error, isEditMode }) => {
             aria-label="Article title"
           />
           <div className="field-meta">
-            {validationErrors.title && <span className="field-error">{validationErrors.title}</span>}
-            <span className="char-count">{formData.title.length} / 120</span>
+            {validationErrors.title ? (
+              <span className="field-error">{validationErrors.title}</span>
+            ) : (
+              <span></span>
+            )}
+            <span className={getCharCountClass(formData.title.length, 120)}>
+              {formData.title.length} / 120
+            </span>
           </div>
         </div>
 
@@ -173,8 +197,14 @@ const PostEditor = ({ initialData, onSubmit, loading, error, isEditMode }) => {
             aria-label="Article excerpt"
           />
           <div className="field-meta">
-            {validationErrors.excerpt && <span className="field-error">{validationErrors.excerpt}</span>}
-            <span className="char-count">{formData.excerpt.length} / 300</span>
+            {validationErrors.excerpt ? (
+              <span className="field-error">{validationErrors.excerpt}</span>
+            ) : (
+              <span></span>
+            )}
+            <span className={getCharCountClass(formData.excerpt.length, 300)}>
+              {formData.excerpt.length} / 300
+            </span>
           </div>
         </div>
 
@@ -185,10 +215,17 @@ const PostEditor = ({ initialData, onSubmit, loading, error, isEditMode }) => {
             placeholder="Start writing your article..."
             value={formData.content}
             onChange={handleChange}
-            rows={20}
+            rows={25}
             aria-label="Article content"
           />
-          {validationErrors.content && <span className="field-error">{validationErrors.content}</span>}
+          <div className="field-meta">
+            {validationErrors.content ? (
+              <span className="field-error">{validationErrors.content}</span>
+            ) : (
+              <span></span>
+            )}
+            <span className="word-count">{getContentWordCount()} words</span>
+          </div>
         </div>
 
         <div className="form-group">

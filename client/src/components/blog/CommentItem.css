@@ -1,0 +1,116 @@
+.comment-item {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--bg);
+}
+
+.comment-avatar-wrapper {
+  flex-shrink: 0;
+}
+
+.comment-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+.comment-avatar-fallback {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background-color: var(--accent-bg);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-lg);
+}
+
+.comment-content-wrapper {
+  flex: 1;
+  min-width: 0; /* Prevents overflow in flex child */
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-xs);
+}
+
+.comment-author-name {
+  font-weight: var(--font-weight-bold);
+  color: var(--text-h);
+  margin: 0;
+  font-size: var(--font-md);
+}
+
+.comment-date {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+.comment-text {
+  color: var(--text);
+  font-size: var(--font-md);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.comment-actions {
+  margin-top: var(--space-sm);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-delete-comment {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background: none;
+  border: none;
+  color: #ef4444; /* standard error red */
+  font-size: var(--font-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  transition: background-color 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-delete-comment:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+@media (max-width: 640px) {
+  .comment-item {
+    padding: var(--space-md);
+  }
+}
+
+a.comment-avatar-wrapper {
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+a.comment-avatar-wrapper:hover {
+  opacity: 0.8;
+}
+
+a.comment-author-name {
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a.comment-author-name:hover {
+  text-decoration: underline;
+  color: var(--accent);
+}

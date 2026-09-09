@@ -39,3 +39,17 @@
   font-size: var(--font-sm);
   color: var(--color-text-muted);
 }
+
+a.author-info {
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+a.author-info:hover {
+  opacity: 0.8;
+}
+
+a.author-info:hover .author-info-name {
+  text-decoration: underline;
+  color: var(--color-accent);
+}

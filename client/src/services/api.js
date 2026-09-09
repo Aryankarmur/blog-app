@@ -25,7 +25,14 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // We can handle 401 Unauthorized globally here in the future
+    // Handle 401 Unauthorized globally
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      // Only redirect if we are not already on the login page
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        window.location.href = '/login';
+      }
+    }
     return Promise.reject(error);
   }
 );

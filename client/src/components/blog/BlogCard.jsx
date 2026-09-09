@@ -28,16 +28,29 @@ const BlogCard = ({ post }) => {
         </Link>
         <p className="blog-card-excerpt">{excerpt}</p>
         <div className="blog-card-footer">
-          <div className="blog-card-author">
-            {author?.profileImage ? (
-              <img src={author.profileImage} alt={author.name} className="author-avatar" />
-            ) : (
-              <div className="author-avatar-fallback">
-                {author?.name ? author.name[0].toUpperCase() : <User size={14} />}
-              </div>
-            )}
-            <span className="author-name">{author?.name || 'Unknown'}</span>
-          </div>
+          {author?._id ? (
+            <Link to={`/users/${author._id}`} className="blog-card-author">
+              {author?.profileImage ? (
+                <img src={author.profileImage} alt={author.name} className="author-avatar" />
+              ) : (
+                <div className="author-avatar-fallback">
+                  {author?.name ? author.name[0].toUpperCase() : <User size={14} />}
+                </div>
+              )}
+              <span className="author-name">{author?.name || 'Unknown'}</span>
+            </Link>
+          ) : (
+            <div className="blog-card-author">
+              {author?.profileImage ? (
+                <img src={author.profileImage} alt={author.name} className="author-avatar" />
+              ) : (
+                <div className="author-avatar-fallback">
+                  {author?.name ? author.name[0].toUpperCase() : <User size={14} />}
+                </div>
+              )}
+              <span className="author-name">{author?.name || 'Unknown'}</span>
+            </div>
+          )}
           <span className="blog-card-date">{formatDate(createdAt)}</span>
         </div>
       </div>

@@ -1,0 +1,83 @@
+.saved-articles-page {
+  padding: var(--space-xl) 0;
+}
+
+.saved-header {
+  margin-bottom: var(--space-xl);
+}
+
+.saved-title {
+  font-size: var(--font-xxl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin-bottom: var(--space-xs);
+}
+
+.saved-subtitle {
+  color: var(--color-text-secondary);
+  font-size: var(--font-md);
+}
+
+.saved-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+}
+
+.saved-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: var(--space-xxl);
+}
+
+/* Wrapper to position the remove button over the BlogCard */
+.saved-card-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.remove-bookmark-overlay {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  background-color: var(--color-bg);
+  color: var(--color-danger, #ef4444);
+  border: 1px solid var(--color-border);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.saved-card-wrapper:hover .remove-bookmark-overlay,
+.remove-bookmark-overlay:focus-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.remove-bookmark-overlay:hover {
+  background-color: var(--color-danger, #ef4444);
+  color: #ffffff;
+  border-color: var(--color-danger, #ef4444);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .remove-bookmark-overlay {
+    opacity: 1; /* Always visible on mobile */
+    transform: translateY(0);
+    top: var(--space-xs);
+    right: var(--space-xs);
+  }
+}

@@ -11,6 +11,18 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const refreshUser = async () => {
+    if (!token) return;
+    try {
+      const res = await api.get('/auth/me');
+      setUser(res.data.data.user);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Auth refresh failed', error);
+      logout();
+    }
+  };
+
   useEffect(() => {
     const initAuth = async () => {
       if (token) {
@@ -27,13 +39,17 @@ export const AuthProvider = ({ children }) => {
     };
 
     initAuth();
-  }, [token]);
+  }, [token]); // token change triggers initAuth, but we also provide refreshUser for manual calls
 
   const login = (userData, jwtToken) => {
     setUser(userData);
     setToken(jwtToken);
     setIsAuthenticated(true);
     localStorage.setItem('token', jwtToken);
+  };
+
+  const register = (userData, jwtToken) => {
+    login(userData, jwtToken); // Reusing login logic for setting state
   };
 
   const logout = () => {
@@ -44,7 +60,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isAuthenticated, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, isAuthenticated, loading, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import { Eye, Edit, FileText } from 'lucide-react';
+import { Eye, Edit, FileText, Trash2 } from 'lucide-react';
 import './MyArticleCard.css';
 
-const MyArticleCard = ({ post }) => {
+const MyArticleCard = ({ post, onDelete }) => {
   const formatDate = (dateString) => {
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString(undefined, { 
@@ -47,6 +47,12 @@ const MyArticleCard = ({ post }) => {
           <Edit size={18} />
           <span className="action-label">Edit</span>
         </Link>
+        {onDelete && (
+          <button type="button" onClick={() => onDelete(post)} className="btn-icon btn-icon-danger" aria-label={`Delete article: ${post.title}`}>
+            <Trash2 size={18} />
+            <span className="action-label">Delete</span>
+          </button>
+        )}
       </div>
     </div>
   );

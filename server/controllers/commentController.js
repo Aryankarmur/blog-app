@@ -5,12 +5,15 @@ import Post from '../models/Post.js';
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 // @desc    Create a comment
-// @route   POST /api/posts/:postId/comments
+// @route   POST /api/comments
 // @access  Private
 export const createComment = async (req, res) => {
   try {
-    const { postId } = req.params;
-    const { content } = req.body;
+    const { post: postId, content } = req.body;
+
+    if (!postId || !content) {
+      return res.status(400).json({ success: false, message: 'Post ID and content are required' });
+    }
 
     if (!isValidObjectId(postId)) {
       return res.status(400).json({ success: false, message: 'Invalid post ID format' });
@@ -30,7 +33,7 @@ export const createComment = async (req, res) => {
     const savedComment = await comment.save();
     
     // Populate the author before returning
-    await savedComment.populate('author', '-password');
+    await savedComment.populate('author', '_id name profileImage');
 
     res.status(201).json({
       success: true,
@@ -46,9 +49,9 @@ export const createComment = async (req, res) => {
 };
 
 // @desc    Get comments for a post
-// @route   GET /api/posts/:postId/comments
+// @route   GET /api/comments/post/:postId
 // @access  Public
-export const getComments = async (req, res) => {
+export const getCommentsByPost = async (req, res) => {
   try {
     const { postId } = req.params;
 
@@ -63,14 +66,14 @@ export const getComments = async (req, res) => {
 
     const comments = await Comment.find({ post: postId })
       .sort({ createdAt: -1 })
-      .populate('author', '-password');
+      .populate('author', '_id name profileImage');
 
     res.status(200).json({
       success: true,
       data: comments,
     });
   } catch (error) {
-    console.error('Error in getComments:', error.message);
+    console.error('Error in getCommentsByPost:', error.message);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
@@ -93,7 +96,7 @@ export const deleteComment = async (req, res) => {
     }
 
     if (comment.author.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: 'Not authorized to delete this comment' });
+      return res.status(403).json({ success: false, message: 'You do not have permission to delete this comment' });
     }
 
     await comment.deleteOne();

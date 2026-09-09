@@ -111,6 +111,18 @@
   font-size: var(--font-sm);
   transition: all 0.2s ease;
   flex: 1;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-icon-danger {
+  color: #ef4444; /* Standard red for destructive actions */
+}
+
+.btn-icon-danger:hover {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  color: #dc2626 !important;
 }
 
 .btn-icon:hover {

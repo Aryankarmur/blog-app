@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
-import { getPosts } from '../../services/postService';
+import { getPosts, getTags } from '../../services/postService';
 import BlogCard from '../../components/blog/BlogCard';
 import Pagination from '../../components/common/Pagination';
 import ErrorMessage from '../../components/common/ErrorMessage';
@@ -15,6 +15,9 @@ const Explore = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [availableCategories, setAvailableCategories] = useState(new Set());
+  const [availableTags, setAvailableTags] = useState([]);
+  const [tagsLoading, setTagsLoading] = useState(true);
+  const [tagsError, setTagsError] = useState(null);
   
   // Local state for the search input to allow debouncing
   const initialSearch = searchParams.get('q') || '';
@@ -67,6 +70,21 @@ const Explore = () => {
     fetchPosts();
   }, [fetchPosts]);
 
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        setTagsLoading(true);
+        const res = await getTags();
+        setAvailableTags(res.data?.tags || []);
+      } catch (err) {
+        setTagsError('Failed to load tags.');
+      } finally {
+        setTagsLoading(false);
+      }
+    };
+    fetchTags();
+  }, []);
+
   // Handle search debounce
   useEffect(() => {
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
@@ -99,6 +117,17 @@ const Explore = () => {
     setSearchParams(newParams);
   };
 
+  const handleTagSelect = (tag) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (tag) {
+      newParams.set('tag', tag);
+    } else {
+      newParams.delete('tag');
+    }
+    newParams.delete('page');
+    setSearchParams(newParams);
+  };
+
   const handlePageChange = (newPage) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('page', newPage);
@@ -109,6 +138,14 @@ const Explore = () => {
   const clearFilters = () => {
     setSearchInput('');
     setSearchParams(new URLSearchParams());
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('q');
+    newParams.delete('page');
+    setSearchParams(newParams);
   };
 
   const renderSkeletons = () => {
@@ -141,12 +178,15 @@ const Explore = () => {
               placeholder="Search articles..." 
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') handleClearSearch();
+              }}
               aria-label="Search articles"
             />
             {searchInput && (
               <button 
                 className="explore-search-clear" 
-                onClick={() => setSearchInput('')}
+                onClick={handleClearSearch}
                 aria-label="Clear search"
               >
                 <X size={16} />
@@ -173,6 +213,56 @@ const Explore = () => {
               ))}
             </div>
           )}
+
+          {!tagsLoading && !tagsError && availableTags.length > 0 && (
+            <div className="explore-tags">
+              <span className="explore-tags-label">Tags:</span>
+              <div className="explore-tags-list">
+                <button 
+                  className={`explore-tag-chip ${!currentTag ? 'active' : ''}`}
+                  onClick={() => handleTagSelect('')}
+                >
+                  All
+                </button>
+                {availableTags.map(tag => (
+                  <button 
+                    key={tag}
+                    className={`explore-tag-chip ${currentTag === tag ? 'active' : ''}`}
+                    onClick={() => handleTagSelect(tag)}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Active Filters Row */}
+          {(searchParams.get('q') || currentCategory || currentTag) && (
+            <div className="explore-active-filters">
+              <span className="active-filters-label">Active Filters:</span>
+              <div className="active-filters-list">
+                {searchParams.get('q') && (
+                  <button className="active-filter-chip" onClick={handleClearSearch}>
+                    Search: <strong>{searchParams.get('q')}</strong> <X size={14} />
+                  </button>
+                )}
+                {currentCategory && (
+                  <button className="active-filter-chip" onClick={() => handleCategorySelect('')}>
+                    Category: <strong>{currentCategory}</strong> <X size={14} />
+                  </button>
+                )}
+                {currentTag && (
+                  <button className="active-filter-chip" onClick={() => handleTagSelect('')}>
+                    Tag: <strong>{currentTag}</strong> <X size={14} />
+                  </button>
+                )}
+              </div>
+              <button className="btn-clear-all" onClick={clearFilters}>
+                Clear all filters
+              </button>
+            </div>
+          )}
         </div>
 
         {error && (
@@ -189,7 +279,7 @@ const Explore = () => {
         ) : !error && posts.length === 0 ? (
           <div className="explore-empty">
             <EmptyState 
-              title="No articles found" 
+              title={searchParams.get('q') ? `No articles found for "${searchParams.get('q')}"` : "No articles found"}
               message="Try a different search term or category." 
             />
             {(searchParams.get('q') || searchParams.get('category') || searchParams.get('tag')) && (
@@ -202,9 +292,14 @@ const Explore = () => {
           <>
             <div className="explore-meta">
               {pagination?.totalPosts !== undefined && (
-                <span className="explore-result-count">
-                  Showing {pagination.totalPosts} article{pagination.totalPosts !== 1 ? 's' : ''}
-                </span>
+                <div className="explore-result-header">
+                  {searchParams.get('q') && (
+                    <h2 className="explore-search-feedback">Search results for "{searchParams.get('q')}"</h2>
+                  )}
+                  <span className="explore-result-count">
+                    {pagination.totalPosts} article{pagination.totalPosts !== 1 ? 's' : ''} found
+                  </span>
+                </div>
               )}
             </div>
             

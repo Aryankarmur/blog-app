@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getPosts } from '../../services/postService';
+import { useAuth } from '../../context/AuthContext';
 import BlogCard from '../../components/blog/BlogCard';
 import FeaturedPost from '../../components/blog/FeaturedPost';
 import CategoryList from '../../components/blog/CategoryList';
@@ -14,13 +15,14 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const fetchPosts = async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await getPosts({ limit: 10 }); // Fetch recent posts
+      const res = await getPosts({ limit: 7 }); // Fetch 1 featured + 6 recent posts
       // Ensure we only use published posts in case backend returns drafts
       const publishedPosts = res.data?.posts?.filter(p => p.status !== 'draft') || [];
       setPosts(publishedPosts);
@@ -37,6 +39,14 @@ const Home = () => {
 
   const handleExploreClick = () => {
     navigate('/explore');
+  };
+
+  const handleWriteClick = () => {
+    if (isAuthenticated) {
+      navigate('/posts/create');
+    } else {
+      navigate('/login');
+    }
   };
 
   if (loading) {
@@ -59,7 +69,13 @@ const Home = () => {
   if (posts.length === 0) {
     return (
       <div className="container" style={{ marginTop: 'var(--space-2xl)' }}>
-        <EmptyState title="No articles published yet" message="Check back later for exciting developer insights." />
+        <EmptyState 
+          title="No articles published yet" 
+          message="Be one of the first developers to share something with the community." 
+        />
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'var(--space-md)' }}>
+          <Button onClick={handleWriteClick}>Start Writing</Button>
+        </div>
       </div>
     );
   }
@@ -67,8 +83,9 @@ const Home = () => {
   const featuredPost = posts[0];
   const latestPosts = posts.slice(1);
 
-  // Extract unique categories from fetched posts
+  // Extract unique categories and tags from fetched posts
   const uniqueCategories = [...new Set(posts.map(p => p.category).filter(Boolean))];
+  const uniqueTags = [...new Set(posts.flatMap(p => p.tags || []).filter(Boolean))];
 
   return (
     <div className="home-container">
@@ -77,8 +94,13 @@ const Home = () => {
         <div className="container">
           <span className="home-hero-eyebrow">DEV BLOG</span>
           <h1 className="home-hero-title">Write. Build. Share.</h1>
-          <p className="home-hero-subtitle">Ideas, tutorials and experiences from developers.</p>
-          <Button onClick={handleExploreClick} size="lg">Explore Articles</Button>
+          <p className="home-hero-subtitle">Explore ideas, tutorials, and experiences from developers and tech enthusiasts.</p>
+          <div className="home-hero-actions">
+            <Button onClick={handleExploreClick} size="lg">Explore Articles</Button>
+            <Button onClick={handleWriteClick} variant="outline" size="lg">
+              {isAuthenticated ? 'Write an Article' : 'Start Writing'}
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -109,8 +131,41 @@ const Home = () => {
                 <BlogCard key={post._id} post={post} />
               ))}
             </div>
+            <div className="home-view-all">
+              <Button onClick={handleExploreClick} variant="outline">View All Articles</Button>
+            </div>
           </section>
         )}
+
+        {/* Tags */}
+        {uniqueTags.length > 0 && (
+          <section className="home-section">
+            <div className="home-section-header">
+              <h3 className="home-tags-title">Explore Topics</h3>
+            </div>
+            <div className="home-tags-list">
+              {uniqueTags.map(tag => (
+                <Link key={tag} to={`/explore?tag=${encodeURIComponent(tag)}`} className="home-tag-chip">
+                  #{tag}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Bottom CTA */}
+        <section className="home-cta-section">
+          <h2 className="home-cta-title">Share your knowledge</h2>
+          <p className="home-cta-subtitle">
+            {isAuthenticated 
+              ? 'Share your next article with the developer community.'
+              : 'Create an account and start writing.'
+            }
+          </p>
+          <Button onClick={handleWriteClick} size="lg">
+            {isAuthenticated ? 'Start Writing' : 'Create an Account'}
+          </Button>
+        </section>
       </div>
     </div>
   );

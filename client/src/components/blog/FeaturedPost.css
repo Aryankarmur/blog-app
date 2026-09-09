@@ -148,3 +148,17 @@
     padding: var(--space-2xl);
   }
 }
+
+a.featured-author {
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+a.featured-author:hover {
+  opacity: 0.8;
+}
+
+a.featured-author:hover .featured-author-name {
+  text-decoration: underline;
+  color: var(--color-accent);
+}
