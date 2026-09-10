@@ -68,12 +68,12 @@ const Home = () => {
 
   if (posts.length === 0) {
     return (
-      <div className="container" style={{ marginTop: 'var(--space-2xl)' }}>
+      <div className="container" style={{ marginTop: 'var(--space-2xl)', paddingBottom: 'var(--space-3xl)' }}>
         <EmptyState 
           title="No articles published yet" 
           message="Be one of the first developers to share something with the community." 
         />
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'var(--space-md)' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'var(--space-xl)' }}>
           <Button onClick={handleWriteClick}>Start Writing</Button>
         </div>
       </div>
