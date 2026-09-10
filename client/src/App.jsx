@@ -15,6 +15,8 @@ import Categories from './pages/Categories';
 import SavedArticles from './pages/SavedArticles';
 import NotFound from './pages/NotFound';
 import ScrollToTop from './components/common/ScrollToTop';
+import AdminRoute from './components/common/AdminRoute';
+import Admin from './pages/Admin';
 
 const App = () => {
   return (
@@ -61,6 +63,14 @@ const App = () => {
             } 
           />
           <Route path="users/:id" element={<UserProfile />} />
+          <Route 
+            path="admin" 
+            element={
+              <AdminRoute>
+                <Admin />
+              </AdminRoute>
+            } 
+          />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

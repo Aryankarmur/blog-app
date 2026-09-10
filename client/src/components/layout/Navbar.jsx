@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Sun, Moon, Menu, X, Edit3, User, LogOut, Bookmark } from 'lucide-react';
+import { Search, Sun, Moon, Menu, X, Edit3, User, LogOut, Bookmark, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import './Navbar.css';
@@ -59,6 +59,11 @@ const Navbar = () => {
                 <Link to="/saved" className="nav-link write-link" aria-label="Saved Articles" title="Saved Articles">
                   <Bookmark size={18} /> Saved
                 </Link>
+                {user?.role === 'admin' && (
+                  <Link to="/admin" className="nav-link write-link" style={{ color: 'var(--color-accent)' }}>
+                    <Shield size={18} /> Admin
+                  </Link>
+                )}
                 <Link to="/profile" className="profile-btn" aria-label="User Profile">
                   {user?.profileImage ? (
                     <img src={user.profileImage} alt="Profile" className="profile-img" />
@@ -118,6 +123,11 @@ const Navbar = () => {
                   <NavLink to="/saved">
                     <Bookmark size={18} /> Saved Articles
                   </NavLink>
+                  {user?.role === 'admin' && (
+                    <NavLink to="/admin" style={{ color: 'var(--color-accent)' }}>
+                      <Shield size={18} /> Admin
+                    </NavLink>
+                  )}
                   <NavLink to="/profile">
                     <User size={18} /> Profile
                   </NavLink>
