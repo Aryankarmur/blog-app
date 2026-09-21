@@ -62,30 +62,7 @@
   text-decoration: underline;
 }
 
-/* Password wrapper class */
-.password-input-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-.password-toggle-btn {
-  position: absolute;
-  right: 12px;
-  top: 38px; /* Approx position based on label height */
-  background: none;
-  border: none;
-  color: var(--text);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-}
-
-.password-toggle-btn:hover {
-  color: var(--text-h);
-}
+/* Removed password toggle classes, now handled locally in Input.jsx */
 
 @media (max-width: 480px) {
   .auth-card {
