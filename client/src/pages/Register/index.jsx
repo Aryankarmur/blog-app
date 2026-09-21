@@ -14,7 +14,6 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const { register } = useAuth();
   const { showToast } = useToast();
@@ -73,8 +72,6 @@ const Register = () => {
     }
   };
 
-  const togglePassword = () => setShowPassword(!showPassword);
-
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -114,7 +111,7 @@ const Register = () => {
 
           <Input
             label="Password"
-            type={showPassword ? 'text' : 'password'}
+            type="password"
             id="password"
             name="password"
             value={formData.password}
@@ -123,21 +120,11 @@ const Register = () => {
             placeholder="••••••••"
             autoComplete="new-password"
             disabled={loading}
-            rightElement={
-              <button 
-                type="button" 
-                className="password-toggle-btn" 
-                onClick={togglePassword}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            }
           />
 
           <Input
             label="Confirm Password"
-            type={showPassword ? 'text' : 'password'}
+            type="password"
             id="confirmPassword"
             name="confirmPassword"
             value={formData.confirmPassword}

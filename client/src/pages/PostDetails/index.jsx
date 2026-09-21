@@ -15,6 +15,7 @@ const PostDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isNotFound, setIsNotFound] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -167,8 +168,8 @@ const PostDetails = () => {
       </header>
 
       <div className="post-cover-wrapper">
-        {post.coverImage ? (
-          <img src={post.coverImage} alt={post.title} className="post-cover-image" />
+        {post.coverImage && !imageError ? (
+          <img src={post.coverImage} alt={post.title} className="post-cover-image" onError={() => setImageError(true)} />
         ) : (
           <div className="post-cover-placeholder" aria-hidden="true">
             <ImageIcon size={64} className="placeholder-icon" />

@@ -14,7 +14,6 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const { login } = useAuth();
   const { showToast } = useToast();
@@ -66,8 +65,6 @@ const Login = () => {
     }
   };
 
-  const togglePassword = () => setShowPassword(!showPassword);
-
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -94,7 +91,7 @@ const Login = () => {
 
           <Input
             label="Password"
-            type={showPassword ? 'text' : 'password'}
+            type="password"
             id="password"
             name="password"
             value={formData.password}
@@ -103,16 +100,6 @@ const Login = () => {
             placeholder="••••••••"
             autoComplete="current-password"
             disabled={loading}
-            rightElement={
-              <button 
-                type="button" 
-                className="password-toggle-btn" 
-                onClick={togglePassword}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            }
           />
 
           <Button type="submit" className="auth-submit-btn" disabled={loading}>

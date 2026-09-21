@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { User, Image as ImageIcon } from 'lucide-react';
 import './BlogCard.css';
 
 const BlogCard = ({ post }) => {
   const { _id, title, excerpt, coverImage, category, author, createdAt } = post;
+  const [imageError, setImageError] = useState(false);
   
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -13,8 +15,8 @@ const BlogCard = ({ post }) => {
   return (
     <article className="blog-card">
       <Link to={`/posts/${_id}`} className="blog-card-image-link">
-        {coverImage ? (
-          <img src={coverImage} alt={title} className="blog-card-image" />
+        {coverImage && !imageError ? (
+          <img src={coverImage} alt={title} className="blog-card-image" onError={() => setImageError(true)} />
         ) : (
           <div className="blog-card-image-placeholder">
             <ImageIcon size={48} className="placeholder-icon" />

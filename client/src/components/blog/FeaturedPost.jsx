@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { User, Image as ImageIcon } from 'lucide-react';
 import './FeaturedPost.css';
 
 const FeaturedPost = ({ post }) => {
   const { _id, title, excerpt, coverImage, category, author, createdAt } = post;
+  const [imageError, setImageError] = useState(false);
   
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -13,8 +15,8 @@ const FeaturedPost = ({ post }) => {
   return (
     <article className="featured-post">
       <Link to={`/posts/${_id}`} className="featured-image-link">
-        {coverImage ? (
-          <img src={coverImage} alt={title} className="featured-image" />
+        {coverImage && !imageError ? (
+          <img src={coverImage} alt={title} className="featured-image" onError={() => setImageError(true)} />
         ) : (
           <div className="featured-image-placeholder">
             <ImageIcon size={64} className="placeholder-icon" />

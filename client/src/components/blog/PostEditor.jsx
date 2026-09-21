@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Send, Plus, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ErrorMessage from '../common/ErrorMessage';
+import LoadingSpinner from '../common/LoadingSpinner';
 import './PostEditor.css';
 
 const PostEditor = ({ initialData, onSubmit, loading, error, isEditMode }) => {
@@ -11,6 +12,7 @@ const PostEditor = ({ initialData, onSubmit, loading, error, isEditMode }) => {
     category: '',
     excerpt: '',
     content: '',
+    coverImage: '',
     tags: [],
     status: 'draft'
   });
@@ -18,6 +20,8 @@ const PostEditor = ({ initialData, onSubmit, loading, error, isEditMode }) => {
   const [tagInput, setTagInput] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [imageState, setImageState] = useState({ loading: false, error: false, validationError: null });
 
   useEffect(() => {
     if (initialData) {
@@ -26,11 +30,51 @@ const PostEditor = ({ initialData, onSubmit, loading, error, isEditMode }) => {
         category: initialData.category || '',
         excerpt: initialData.excerpt || '',
         content: initialData.content || '',
+        coverImage: initialData.coverImage || '',
         tags: initialData.tags || [],
         status: initialData.status || 'draft'
       });
     }
   }, [initialData]);
+
+  // Validate URL helper
+  const validateImageUrl = (url) => {
+    if (!url || !url.trim()) return { isValid: true, error: null };
+    if (url.length > 2000) return { isValid: false, error: 'URL is too long.' };
+    try {
+      const parsed = new URL(url.trim());
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        return { isValid: false, error: 'Only HTTP and HTTPS URLs are allowed.' };
+      }
+      return { isValid: true, error: null };
+    } catch (e) {
+      return { isValid: false, error: 'Please enter a valid absolute URL.' };
+    }
+  };
+
+  // Debounce the preview update
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const url = formData.coverImage?.trim();
+      const validation = validateImageUrl(url);
+      if (validation.isValid) {
+        setPreviewUrl(url);
+        setImageState({ loading: !!url, error: false, validationError: null });
+      } else {
+        setPreviewUrl('');
+        setImageState({ loading: false, error: false, validationError: validation.error });
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [formData.coverImage]);
+
+  const handleImageLoad = () => {
+    setImageState(prev => ({ ...prev, loading: false, error: false }));
+  };
+
+  const handleImageError = () => {
+    setImageState(prev => ({ ...prev, loading: false, error: true }));
+  };
 
   // Handle unsaved changes warning
   useEffect(() => {
@@ -99,6 +143,12 @@ const PostEditor = ({ initialData, onSubmit, loading, error, isEditMode }) => {
     if (!formData.category.trim()) errors.category = 'Category is required.';
     if (!formData.excerpt.trim()) errors.excerpt = 'Excerpt is required.';
     if (!formData.content.trim()) errors.content = 'Content is required.';
+    
+    if (imageState.validationError) {
+      errors.coverImage = imageState.validationError;
+    } else if (formData.coverImage && imageState.error) {
+      errors.coverImage = 'Image could not be loaded. Please check the URL.';
+    }
     
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -183,6 +233,50 @@ const PostEditor = ({ initialData, onSubmit, loading, error, isEditMode }) => {
             aria-label="Category"
           />
           {validationErrors.category && <span className="field-error">{validationErrors.category}</span>}
+        </div>
+
+        <div className="form-group">
+          <label className="editor-label" htmlFor="coverImage">Cover Image URL</label>
+          <input
+            type="text"
+            id="coverImage"
+            name="coverImage"
+            className={`editor-input ${validationErrors.coverImage ? 'is-invalid' : ''}`}
+            placeholder="https://example.com/your-cover-image.jpg"
+            value={formData.coverImage}
+            onChange={handleChange}
+            aria-label="Cover Image URL"
+          />
+          <div className="field-meta">
+            {validationErrors.coverImage ? (
+              <span className="field-error">{validationErrors.coverImage}</span>
+            ) : (
+              <span className="field-helper">
+                Optional. Add an image URL for your article cover.
+                <span className="helper-note">Use a direct image URL. External images can be removed or blocked by their host.</span>
+              </span>
+            )}
+          </div>
+          
+          {previewUrl && (
+            <div className="image-preview-container">
+              {imageState.loading && <div className="image-preview-loading"><LoadingSpinner /></div>}
+              {imageState.error && !imageState.loading && (
+                <div className="image-preview-error">
+                  <span>Image could not be loaded.</span>
+                </div>
+              )}
+              {!imageState.error && (
+                <img 
+                  src={previewUrl} 
+                  alt="Cover preview" 
+                  className={`image-preview ${imageState.loading ? 'loading' : ''}`} 
+                  onLoad={handleImageLoad} 
+                  onError={handleImageError} 
+                />
+              )}
+            </div>
+          )}
         </div>
 
         <div className="form-group">
